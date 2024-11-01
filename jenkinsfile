@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Docker Login & Build Image') {
+            steps {
+            	withCredentials([usernamePassword(credentialsId: 'Docker_login', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh   """
+                        docker login -u $USERNAME -p $PASSWORD
+                        docker build -t alielhabal70/backhouse:latest .
+                        docker push alielhabal70/backhouse:latest
+                    """
+                 }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh   """
+                    docker run -d -p 5000:8080 alielhabal70/backhouse:latest
+                """ 
+            }
+        }
+        
+    }
+
+}
